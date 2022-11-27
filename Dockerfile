@@ -1,7 +1,7 @@
-FROM nimlang/nim:2.0.0-alpine-regular as nim
+FROM nimlang/nim:2.0.0-ubuntu-regular as nim
 LABEL maintainer="setenforce@protonmail.com"
 
-RUN apk --no-cache add libsass-dev pcre
+RUN apt-get update && apt-get install -y libsass-dev libpcre3-dev build-essential
 
 WORKDIR /src/nitter
 
@@ -13,9 +13,9 @@ RUN nimble build -d:danger -d:lto -d:strip \
     && nimble scss \
     && nimble md
 
-FROM alpine:latest
+FROM ubuntu:latest
 WORKDIR /src/
-RUN apk --no-cache add pcre ca-certificates
+RUN apt-get update && apt-get install -y libpcre3-dev ca-certificates libssl-dev curl wget
 COPY --from=nim /src/nitter/nitter ./
 COPY --from=nim /src/nitter/nitter.example.conf ./nitter.conf
 COPY --from=nim /src/nitter/public ./public
